@@ -1,21 +1,21 @@
 import streamlit as st
 import google.generativeai as genai
+from google.genai import types
 from PIL import Image
 import io
 
-with open('static/key.txt','a+') as file:
-    key = file.read()
+try:
+    with open('static/key.txt','r') as file:
+        key = file.read()
+except:
+    st.write('No API key given in ./static/key.txt')
+    exit()
 
-@st.cache_resource
-def setup(key):
-    # Setting up Gemini API Key
-    genai.configure(api_key=key)
+# Setting up Gemini API Key
+genai.configure(api_key=key)
 
-    # Initialize the Gemini model
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    return model
-
-model = setup(key)
+# Initialize the Gemini model
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Set AI Tutor prompt
 system_prompt = """
@@ -40,10 +40,16 @@ if image != None:
         st.image(im)
 
 # Start a conversation loop
+
 if prompt:
     # Let Gemini generate answers
     with st.spinner(text="Cooking a response...", show_time=True):
-        response = model.generate_content([f"{system_prompt}\n\nuser: {prompt}\n\nAI Recipe Tutor:"]+ images)
-
+        response = model.generate_content(
+            contents=[f"{system_prompt}\n\nuser: {prompt}\n\nAI Recipe Tutor:"]+images
+            )
+    with open('static/log.txt', 'a+') as file:
+        file.write('\n')
+        file.write(response.text)
+    
     # Show AI Tutor's answers
     st.write("🍽 AI Recipe Tutor:", response.text, "\n")
