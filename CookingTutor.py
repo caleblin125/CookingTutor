@@ -84,10 +84,10 @@ if prompt:
     with st.spinner(text="Cooking a response...", show_time=True):
         # Let Gemini generate the response and add the search results
         response = model.generate_content(
-            f"{system_prompt}\n"
+            [f"{system_prompt}\n"
             f"User: {prompt}\n"
             f"Search Grounding Info:\n{search_results}\n"
-            f"AI Recipe Tutor:"
+            f"AI Recipe Tutor:"] + images
         )
 
     with open('static/log.txt', 'a+') as file:
