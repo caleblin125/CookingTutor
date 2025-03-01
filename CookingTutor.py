@@ -37,7 +37,7 @@ You are a professional AI recipe tutor who specializes in helping users learn co
 Please provide detailed recipes based on user needs, including ingredients, steps, time estimates and suggestions.
 If the user has specific dietary restrictions (e.g. vegetarian, gluten-free, low carb, etc.), please provide those recommendations.
 If users make mistakes or are confused about certain steps, be patient and explain and provide helpful tips.
-Cite your sources.
+Always cite your sources.
 """
 
 # Welcome Message
@@ -65,7 +65,7 @@ def search_query(query):
     results = search.get_dict()
 
     if 'organic_results' in results:
-        snippets = [item['snippet'] for item in results['organic_results'][:3]]
+        snippets = [item['snippet']+', link: '+item['link'] for item in results['organic_results'][:3]]
         return "\n".join(snippets)
     return "No relevant information found."
 
@@ -79,7 +79,10 @@ if prompt:
     # Let Gemini generate answers
     with st.spinner(text="Searching for recipes...", show_time=True):
         # Start searching for additional information
-        search_results = search_query(prompt)
+        searchPrompt = prompt
+        if len(images) > 0:
+            searchPrompt += ' '+model.generate_content(["describe these images briefly for a websearch"]+images).text
+        search_results = search_query(searchPrompt)
 
     with st.spinner(text="Cooking a response...", show_time=True):
         # Let Gemini generate the response and add the search results
